@@ -34,7 +34,7 @@ pub trait TaskHandle: Send + Sync + 'static {
     ///
     /// # Cancel Safety
     /// This method is cancel-safe.
-    fn wait(&self) -> BoxFuture<Result<TaskFeedback, Error>>;
+    fn wait(&self) -> BoxFuture<'_, Result<TaskFeedback, Error>>;
 }
 
 macro_rules! task_feedback_from {
@@ -72,7 +72,7 @@ impl TaskHandle for TaskHelperHandle {
         _ = self.interrupt_flag.send(true);
     }
 
-    fn wait(&self) -> BoxFuture<Result<TaskFeedback, Error>> {
+    fn wait(&self) -> BoxFuture<'_, Result<TaskFeedback, Error>> {
         Box::pin(async {
             let mut receiver = self.done.clone();
             let x = receiver
@@ -122,7 +122,7 @@ impl TaskHandle for Empty {
 
     fn send_interrupt(&self) {}
 
-    fn wait(&self) -> BoxFuture<Result<TaskFeedback, Error>> {
+    fn wait(&self) -> BoxFuture<'_, Result<TaskFeedback, Error>> {
         Box::pin(async { Ok(TaskFeedback::Nothing(())) })
     }
 }

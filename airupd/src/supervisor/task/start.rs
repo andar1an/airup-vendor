@@ -21,7 +21,7 @@ impl TaskHandle for StartServiceHandle {
         self.helper.send_interrupt()
     }
 
-    fn wait(&self) -> BoxFuture<Result<TaskFeedback, Error>> {
+    fn wait(&self) -> BoxFuture<'_, Result<TaskFeedback, Error>> {
         self.helper.wait()
     }
 }

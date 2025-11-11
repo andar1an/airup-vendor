@@ -36,7 +36,7 @@ impl TaskHandle for CleanupServiceHandle {
         self.helper.send_interrupt()
     }
 
-    fn wait(&self) -> BoxFuture<Result<TaskFeedback, Error>> {
+    fn wait(&self) -> BoxFuture<'_, Result<TaskFeedback, Error>> {
         self.helper.wait()
     }
 }
