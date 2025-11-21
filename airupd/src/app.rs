@@ -104,7 +104,11 @@ impl Airupd {
             }
         }
 
-        self.storage.runtime.ipc_server().await?.start();
+        let sock_path = self.storage.runtime.ipc_server();
+        unsafe {
+            std::env::set_var("AIRUP_SOCK", &sock_path);
+        }
+        rpc::Server::with_path_force(&sock_path).await?.start();
         Ok(())
     }
 }
@@ -140,15 +144,13 @@ pub async fn set_manifest_at(path: Option<&Path>) {
         unsafe {
             std::env::set_var("AIRUP_OVERRIDE_MANIFEST_PATH", path);
         }
-        airup_sdk::build::set_manifest(
-            ciborium::from_reader(
-                &tokio::fs::read(path)
-                    .await
-                    .unwrap_log("failed to read overridden build manifest")
-                    .await[..],
-            )
+        let content = tokio::fs::read(path)
+            .await
+            .unwrap_log("failed to read overridden build manifest")
+            .await;
+        let manifest = ciborium::from_reader(&content[..])
             .unwrap_log("failed to parse overridden build manifest")
-            .await,
-        );
+            .await;
+        airup_sdk::build::set_manifest(manifest);
     }
 }

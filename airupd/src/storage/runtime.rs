@@ -1,6 +1,5 @@
 //! Represents to Airup's runtime directory.
 
-use crate::rpc;
 use airupfx::fs::Lock;
 use std::path::PathBuf;
 
@@ -18,20 +17,13 @@ impl Runtime {
         Self { base_dir }
     }
 
-    /// Locks airup data.
+    /// Acquires airup data lock.
     pub async fn lock(&self) -> std::io::Result<Lock> {
         Lock::new(self.base_dir.join("airupd.lock")).await
     }
 
-    /// Creates an IPC server.
-    pub async fn ipc_server(&self) -> anyhow::Result<rpc::Server> {
-        let socket_path = self.base_dir.join("airupd.sock");
-
-        // FIXME: Should we avoid using `std::env::set_var` here?
-        unsafe {
-            std::env::set_var("AIRUP_SOCK", &socket_path);
-        }
-
-        rpc::Server::with_path_force(&socket_path).await
+    /// Returns path of the IPC server socket.
+    pub fn ipc_server(&self) -> PathBuf {
+        self.base_dir.join("airupd.sock")
     }
 }

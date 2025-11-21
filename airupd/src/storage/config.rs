@@ -29,8 +29,8 @@ impl Config {
         self.base_dir.find(format!("{name}.airs.airc")).await
     }
 
-    /// Populates the process' environment with the system config.
-    pub fn populate_system_config(&self) {
+    /// Applies the process with the system config.
+    pub fn apply_system_config(&self) {
         if !self.system_conf.system.instance_name.is_empty() {
             airupfx::env::set_instance_name(self.system_conf.system.instance_name.clone());
         }

@@ -57,7 +57,7 @@ impl Ace {
     }
 
     async fn run_parsed(&self, cmd: parser::Command) -> Result<Child, Error> {
-        if cmd.module == "-" {
+        if cmd.module == "@nofail" {
             let otherwise =
                 |_| Child::AlwaysSuccess(Box::new(Child::Builtin(builtins::noop(vec![]).into())));
             let Some(wrapped) = cmd.wrap(std::convert::identity) else {
@@ -71,10 +71,10 @@ impl Ace {
                     .unwrap_or_else(otherwise),
             )));
         }
-        if cmd.module == "&" {
+        if cmd.module == "@async" {
             let wrapped = cmd
                 .wrap(std::convert::identity)
-                .ok_or_else(|| Error::Parse("no command following async mark '&'".into()))?;
+                .ok_or_else(|| Error::Parse("'@async' requires a following command".into()))?;
             return Ok(Child::Async(Box::new(
                 Box::pin(self.run_parsed(wrapped)).await?,
             )));
